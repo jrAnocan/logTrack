@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grid Selection Example</title>
+<link rel="stylesheet" href="grid.css">
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+    }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+        gap: 20px;
+        width: 80vw;
+        height: 80vh;
+        padding: 10px;
+        box-sizing: border-box;
+    }
+
+    .grid-item {
+        cursor: pointer;
+    }
+
+    .line {
+        height: 2px;
+        width: 100px;
+    }
+    .line-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        width: 100%; 
+        text-align: center; 
+        line-height: 0.1em;
+        margin: 10px 0 20px; 
+    } 
+    
+    h2 span { 
+        background: #f0f0f0; 
+        padding:0 10px; 
+    }
+</style>
+</head>
+<body>
+
+<div class="grid-container" id="gridContainer">
+    <div class="grid-item">Mc</div>
+    <div class="grid-item">Dsp</div>
+    <div class="grid-item">Eond</div>
+    <div class="grid-item">Eow</div>
+    <div class="grid-item">Ti</div>
+    <div class="grid-item">Laser</div>
+    <div class="grid-item">Lpi</div>
+    <div class="grid-item">Ssc</div>
+    <div class="grid-item">Pwb</div>
+    <div class="grid-item">Ss</div>
+    <div class="grid-item">Pb</div>
+    <div class="grid-item">Mb</div>
+    <div class="grid-item">13</div>
+    <div class="grid-item">14</div>
+    <div class="grid-item">15</div>
+    <div class="grid-item">16</div>
+</div>
+<h2 style="width:50%; background-color: green;"><span style="color:green;">source</span></h2>
+<h2 style="width:50%; background-color: blue;"><span style="color:blue;">destination</span></h2>
+<script>
+    const gridItems = document.querySelectorAll('.grid-item');
+    const messageObject = {
+        from: 'pathPage',
+        source: '',
+        destination: ''
+    }
+    
+    let currentSelection = 1;
+    let parentWindow = window.parent;
+
+    gridItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (currentSelection === 1){
+                if(item.classList.contains('source'))
+                {
+                    messageObject.source = '';
+                    item.classList.remove('source');
+                }
+                else if(item.classList.contains('destination'))
+                {
+                    messageObject.destination = '';
+                    item.classList.remove('destination');
+                    currentSelection = 2;
+                }
+                else // item.classList is not source or 2
+                {
+                    removeAllGreen();
+                    item.classList.add('source');
+                    messageObject.source = item.textContent;
+                    currentSelection = 2;
+                }
+            }
+
+            else // current selection is 2
+            {
+                if(item.classList.contains('source'))
+                {
+                    messageObject.source = '';
+                    item.classList.remove('source');
+                    currentSelection=1;
+                }
+                else if(item.classList.contains('destination'))
+                {
+                    messageObject.destination = '';
+                    item.classList.remove('destination');
+                }
+                else // item.classList is not source or 2
+                {
+                    removeAllBlue();
+                    item.classList.add('destination');
+                    messageObject.destination = item.textContent;
+                    currentSelection = 1;
+                }
+            }
+            parentWindow.postMessage(JSON.stringify(messageObject), '*');
+        });
+    });
+
+    function removeAllGreen()
+    {
+        gridItems.forEach(item => {
+            item.classList.remove('source');
+        });
+    }
+    function removeAllBlue()
+    {
+        gridItems.forEach(item => {
+            item.classList.remove('destination');
+        });
+    }
+</script>
+
+</body>
+</html>

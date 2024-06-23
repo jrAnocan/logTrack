@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highcharts Line Chart</title>
+    <!-- Highcharts library -->
+    <script src="Highcharts-11/code/highcharts.js"></script>
+    <script src="Highcharts-11/code/modules/boost.js"></script>
+    <script src="Highcharts-11/code/modules/exporting.js"></script>
+    <script src="Highcharts-11/code/modules/export-data.js"></script>
+    <script src="Highcharts-11/code/modules/accessibility.js"></script>
+    <script src="Highcharts-11/code/modules/full-screen.js"></script>
+
+
+</head>
+<body>
+    <div id="container" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Generate a large dataset with 500,000 points
+            const data = [];
+            for (let i = 0; i < 500000; i++) {
+                data.push(Math.sin(i / 10000) * 100 + Math.random() * 10);
+            }
+
+            // Highcharts configuration
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'line',
+                    zoomType: 'x', // Enable zooming on the x-axis
+                    panning: {
+                        enabled: true,
+                        type: 'x'
+                    },
+                    panKey: 'shift', // Enable panning while holding the shift key
+                    boost: {
+                        useGPUTranslations: true,
+                        usePreAllocated: true
+                    }
+                },
+                title: {
+                    text: 'Dense Line Chart with 500,000 Points'
+                },
+                subtitle: {
+                    text: 'Using Highcharts Boost Module with Zooming, Panning, and Fullscreen Enabled'
+                },
+                yAxis: {
+                    title: {
+                        text: 'Value'
+                    }
+                },
+                xAxis: {
+                    title: {
+                        text: 'Index'
+                    }
+                },
+                series: [{
+                    name: 'Random Data',
+                    data: data,
+                    turboThreshold: 500000 // Set turbo threshold to 500,000 points
+                }],
+                boost: {
+                    enabled: true
+                },
+                // Enable exporting options including fullscreen button
+                exporting: {
+                    buttons: {
+                        contextButton: {
+                            menuItems: ["viewFullscreen", "printChart", "separator", "downloadPNG", "downloadJPEG", "downloadPDF", "downloadSVG", "separator", "downloadCSV", "downloadXLSX"],
+                            buttonOptions: {
+                                align: 'right',
+                                verticalAlign: 'top',
+                                y: 0
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

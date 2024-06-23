@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrollable Grid Layout with Search</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr; /* One column layout */
+            gap: 20px;
+            padding: 30px;
+            max-width: 80vw; /* Adjust as needed */
+            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 80vh; /* Limit height for scroll */
+        }
+
+        .grid-item {
+            background: #ffff;
+            box-shadow: 
+                0 0 2px rgba(1, 16, 41, 0.319),
+                0 0 4px rgba(1, 15, 40, 0.319),
+                0 0 6px rgba(0, 15, 41, 0.319),
+                0 0 8px rgba(0, 13, 36, 0.319);
+            border-radius: 8px;
+            font-size: 1em; /* Adjust font size as needed */
+            color: black;
+            text-align: center; /* Center align text */
+            display: flex;
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            width: 80vw; /* Each row covers up to 80% of the width */
+            height: 10vh;
+            cursor: pointer; /* Add cursor pointer to indicate clickable */
+        }
+
+        .item-1 {
+            grid-column: 1 / 2;
+        }
+
+        .search-input {
+            width: 100%;
+            height: 100%;
+            font-size: 1em;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Include padding and border in width calculation */
+        }
+
+        .selected {
+            background-color: lightgreen; /* Green background color */
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="grid-item item-1">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+        </div>
+    </div>
+
+    <script>
+        // Array of names
+        const names = [
+            'John Doe',
+            'Jane Smith',
+            'Michael Brown',
+            'Emily Davis',
+            'David Wilson',
+            'Sarah Johnson',
+            'Matthew Clark',
+            'Olivia Martinez',
+            'Daniel Garcia'
+        ];
+        const messageObject = {
+            from: 'typePage',
+            type: ''
+        }
+
+        let selectedGridItem = null; // Variable to store currently selected grid item
+        let gridItems = []; // Array to store grid items for search functionality
+
+        // Function to create grid items
+        function createGridItems() {
+            const gridContainer = document.querySelector('.grid-container');
+
+            // Clear existing grid items
+            gridContainer.innerHTML = '';
+
+            // Add search input item
+            const searchItem = document.createElement('div');
+            searchItem.classList.add('grid-item', 'item-1');
+            searchItem.innerHTML = `
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+            `;
+            gridContainer.appendChild(searchItem);
+
+            // Add grid items for names
+            names.forEach((name, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.textContent = name;
+                gridContainer.appendChild(gridItem);
+
+                // Add click event listener
+                gridItem.addEventListener('click', function() {
+                    if (gridItem === selectedGridItem) {
+                        // If the clicked item is already selected, deselect it
+                        messageObject.type='';
+                        gridItem.classList.remove('selected');
+                        selectedGridItem = null;
+                    } else {
+                        // Deselect previously selected item
+                        if (selectedGridItem) {
+                            selectedGridItem.classList.remove('selected');
+                        }
+                        // Select the clicked item
+                        gridItem.classList.add('selected');
+                        selectedGridItem = gridItem;
+                        messageObject.type = selectedGridItem.textContent;
+                    }
+                    window.parent.postMessage(JSON.stringify(messageObject), '*');
+                });
+            });
+
+            // Update gridItems array
+            gridItems = Array.from(document.querySelectorAll('.grid-item:not(.item-1)'));
+        }
+
+        // Initial creation of grid items
+        createGridItems();
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+
+        searchInput.addEventListener('input', function() {
+            const searchText = this.value.trim().toLowerCase();
+
+            gridItems.forEach(item => {
+                const itemName = item.textContent.toLowerCase();
+
+                if (itemName.includes(searchText)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // Reset selected grid item on search input change
+            if (selectedGridItem) {
+                selectedGridItem.classList.remove('selected');
+                selectedGridItem = null;
+            }
+        });
+
+        window.addEventListener('message', function(event) {
+            console.log(event.data);
+        });
+    </script>
+</body>
+</html>

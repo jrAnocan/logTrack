@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highcharts Spiderweb Chart Example</title>
+    <!-- Include the Highcharts library -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js"></script>
+</head>
+<body>
+    <!-- Container for the chart -->
+    <div id="container" style="width: 600px; height: 400px; margin: 0 auto;"></div>
+
+    <script>
+        // Initialize the chart
+        Highcharts.chart('container', {
+            chart: {
+                polar: true,
+                type: 'line'
+            },
+            title: {
+                text: 'Highcharts Spiderweb Chart Example',
+                x: -80
+            },
+            pane: {
+                size: '80%'
+            },
+            xAxis: {
+                categories: ['Category 1', 'Category 2', 'Category 3', 'Category 4', 'Category 5'],
+                tickmarkPlacement: 'on',
+                lineWidth: 0
+            },
+            yAxis: {
+                gridLineInterpolation: 'polygon',
+                lineWidth: 0,
+                min: 0
+            },
+            tooltip: {
+                shared: true,
+                pointFormat: '<span style="color:{series.color}">{series.name}: <b>{point.y:,.0f}</b><br/>'
+            },
+            legend: {
+                align: 'right',
+                verticalAlign: 'top',
+                y: 70,
+                layout: 'vertical'
+            },
+            series: [{
+                name: 'Series 1',
+                data: [80, 90, 70, 85, 60],
+                pointPlacement: 'on'
+            }, {
+                name: 'Series 2',
+                data: [65, 75, 95, 70, 85],
+                pointPlacement: 'on'
+            }]
+        });
+    </script>
+</body>
+</html>

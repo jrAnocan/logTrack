@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrollable Grid Layout with Search</title>
+    <link rel="stylesheet" href="grid.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr; /* One column layout */
+            gap: 20px;
+            padding: 30px;
+            max-width: 80vw; /* Adjust as needed */
+            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 80vh; /* Limit height for scroll */
+        }
+
+        .grid-item {
+            font-size: 1em; /* Adjust font size as needed */
+            width: 80vw; /* Each row covers up to 80% of the width */
+            height: 10vh;
+            cursor: pointer; /* Add cursor pointer to indicate clickable */
+        }
+
+        .item-1 {
+            grid-column: 1 / 2;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+    </div>
+
+    <script>
+        // Array of names
+        names = [
+        ];
+
+        function createGridsFromArray()
+        {
+            const gridContainer = document.querySelector('.grid-container');
+            gridContainer.innerHTML = '';
+            names.forEach((name, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.classList.add('selected');
+                gridItem.textContent = name;
+                gridContainer.appendChild(gridItem);
+
+                // Add click event listener
+                gridItem.addEventListener('click', function() {
+                    if (gridItem.classList.contains('selected')) {
+                        // If the clicked item is already selected, deselect it
+                        names = names.filter(item => item !== gridItem.textContent);
+                        gridItem.remove();
+                    }
+                });
+            });
+            gridItems = Array.from(document.querySelectorAll('.grid-item'));
+        }
+
+        // Initial creation of grid items
+        createGridsFromArray();
+
+        window.addEventListener('message', function(event) {
+
+            receivedObjects = JSON.parse(event.data);
+            if(receivedObjects.action === 'add')
+            {
+                names.push(receivedObjects.path +'|'+receivedObjects.type+'|'+receivedObjects.message);
+            }
+            else if(receivedObjects.action === 'remove')
+            {
+                names = names.filter(item => item !== receivedObjects.path +'|'+receivedObjects.type+'|'+receivedObjects.message);
+            }
+            createGridsFromArray();
+        });
+    </script>
+</body>
+</html>

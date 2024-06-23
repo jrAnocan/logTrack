@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Page</title>
+    <link rel="stylesheet" href="grid.css">
+    <style>
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            gap: 2vw;
+            width: 90vw;
+            height: 90vh;
+            position: relative;
+        }
+
+        .grid-item:hover:not(.item-2-3-5-6, .item-4-7, .item-4) {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 2px black,
+                0 0 4px black,
+                0 0 6px black,
+                0 0 8px black;
+            z-index: 2;
+        }
+
+        .item-1 { grid-area: 1 / 1 / 2 / 3; }
+        .item-2-3-5-6 { grid-area: 1 / 3 / 6 / 7; }
+        .item-4 { grid-area: 2 / 1 / 5 / 3;}
+        .item-5 { grid-area: 6 / 1 / 7 / 3; }
+        .item-8 { grid-area: 6 / 3 / 7 / 5; }
+        .item-9 { grid-area: 6 / 5 / 7 / 7; }
+        .item-10 {grid-area: 5 / 1 / 6 / 3;}
+        
+    </style>
+</head>
+<body>
+    <div id="overlay" onclick="hidePopup()"></div>
+    <iframe id="popupFrame" class="popup-frame"></iframe>
+
+    <div class="grid-container">
+        <div class="grid-item item-1" onclick="showPopup('selectPage.html')">
+            <h style="color: black">Select</h>
+        </div>
+        <div class="grid-item item-2-3-5-6">
+            <h style="color: black">Graph</h>
+            <iframe id="graphFrame" src='graph.html' style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+        <div class="grid-item item-4">
+            <h style="color: black">Selected</h>
+            <iframe id="selectedFrame" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+        <div class="grid-item item-5" onclick="drawGraph()">
+            <h style="color: black">Get Selected</h>
+        </div>
+        <div class="grid-item item-8">
+            <h style="color: black">Adjust</h>
+        </div>
+        <div class="grid-item item-9" onclick="showPopup('analysis.html')">
+            <h style="color: black">Analysis</h>
+        </div>
+        <div class="grid-item item-10" onclick="showPopup('time.html')">
+            <h style="color: black">Select Log</h>
+            <h id="logRange"></h>
+        </div>
+    </div>
+
+    <script>
+        var selectedFrame = document.getElementById('selectedFrame');
+        var logRangeElement = document.getElementById('logRange');
+        var popupFrame = document.getElementById('popupFrame');
+        function drawGraph()
+        {
+            var gridContainer = selectedFrame.contentDocument.getElementsByClassName('grid-container')[0];
+            var logRangeText = document.getElementById('logRange').textContent;
+
+            if ((gridContainer && gridContainer.childNodes.length === 0) || logRangeText === '') {
+                showPopup('errorGetMessage.html');
+            }
+        }
+        function showPopup(pageUrl) {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            popupFrame.src = pageUrl;
+            overlay.style.display = 'block';
+            popupFrame.style.display = 'block';
+
+            setTimeout(() => {
+                overlay.style.opacity = 1;
+                popupFrame.style.opacity = 1;
+            }, 0);
+        }
+        function hidePopup() {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            overlay.style.opacity = 0;
+            popupFrame.style.opacity = 0;
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                popupFrame.style.display = 'none';
+            }, 500);
+        }
+        
+        selectedFrame.src = 'selectedPage.html';
+        
+        window.addEventListener('message', function(event) {
+            
+            receivedObject = JSON.parse(event.data);
+            if(receivedObject.from == 'selectPage')
+            {
+                selectedFrame.contentWindow.postMessage(JSON.stringify(receivedObject), '*');
+            }
+            else if(receivedObject.from == 'timePage')
+            {
+                logRangeElement.textContent = receivedObject.start + '->' + receivedObject.end;
+            }
+        });
+    </script>
+</body>
+</html>

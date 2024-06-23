@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="grid.css">
+    <title>Updated Graph Page</title>
+    <style>
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2vw;
+            width: 90vw;
+            height: 90vh;
+            position: relative;
+        }
+
+        .grid-item:not(.item-messages):hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 2px black,
+                0 0 4px black,
+                0 0 6px black,
+                0 0 8px black;
+            z-index: 2;
+        }
+
+        .item-direction { grid-area: 1 / 1 / 2 / 2; }
+        .item-type { grid-area: 2 / 1 / 3 / 2; }
+        .item-select { grid-area: 3 / 1 / 4 / 2; }
+        .item-messages { grid-area: 1 / 2 / 4 / 4; overflow-y: auto; }
+
+        .popup-frame {
+            top: 50%;
+            left: 50%;
+            width: 50%;
+            height: 70%;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="overlay" class="overlay" onclick="hidePopup()"></div>
+    <iframe id="popupFrame" class="popup-frame"></iframe>
+
+    <div class="grid-container">
+        <div class="grid-item item-direction" onclick="showPopup('pathPage.html')">
+            <h style="color: black">Direction</h>
+            <div id="directionData" class="direction-data"></div>
+        </div>
+        <div class="grid-item item-type" onclick="showTypePage()">
+            <h style="color: black">Type</h>
+            <div id="typeData" class="type-data"></div>
+        </div>
+        <div class="grid-item item-select">
+            <h style="color: black">Select</h>
+        </div>
+        <div class="grid-item item-messages" id="messagesContainer">
+            <h style="color: black">Messages</h>
+            <iframe id="messagesFrame" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        var directionElement = document.createElement('p');
+        var typeElement = document.createElement('p');
+
+        function showTypePage()
+        {
+            if(directionElement.textContent === '' || directionElement.textContent.trim() === '->'){showPopup('errorNoDirection.html');}
+            else {showPopup('typePage.html');}
+        }
+        function showPopup(pageUrl) {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            popupFrame.src = pageUrl;
+            overlay.style.display = 'block';
+            popupFrame.style.display = 'block';
+
+            setTimeout(() => {
+                overlay.style.opacity = 1;
+                popupFrame.style.opacity = 1;
+            }, 0);
+        }
+
+        function hidePopup() {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            overlay.style.opacity = 0;
+            popupFrame.style.opacity = 0;
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                popupFrame.style.display = 'none';
+            }, 500);
+        }
+
+        window.addEventListener('message', function(event) {
+            let receivedObject;
+            try {
+                receivedObject = JSON.parse(event.data);
+            } catch (e) {
+                console.error('Error parsing JSON message:', e);
+                return;
+            }
+
+            if (receivedObject.from == 'pathPage') {
+                const directionGridItem = document.querySelector('.direction-data');
+                directionGridItem.innerHTML = '';
+                directionElement.textContent = `${receivedObject.source} -> ${receivedObject.destination}`;
+                directionGridItem.appendChild(directionElement);
+            } else if (receivedObject.from == 'typePage') {
+                const typeGridItem = document.querySelector('.type-data');
+                typeGridItem.innerHTML = '';
+                typeElement.textContent = `${receivedObject.type}`;
+                typeGridItem.appendChild(typeElement);
+
+                // Load messagesPage.html and send the type to it
+                const messagesFrame = document.getElementById('messagesFrame');
+                messagesFrame.src = 'messagesPage.html';
+                messagesFrame.onload = function() {
+                    messagesFrame.contentWindow.postMessage(JSON.stringify({ type: receivedObject.type }), '*');
+                };
+            }
+            else if (receivedObject.from == 'messagesPage')
+            {
+                var messageAction = {
+                    from: 'selectPage',
+                    path: directionElement.textContent,
+                    type: typeElement.textContent,
+                    action: receivedObject.action,
+                    message: receivedObject.message
+                }
+                window.parent.postMessage(JSON.stringify(messageAction), '*');
+            }
+        });
+
+        document.getElementById('popupFrame').addEventListener('load', function() {
+            var iframe = document.getElementById('popupFrame');
+            if (iframe.src.includes('typePage')) {
+                iframe.contentWindow.postMessage(directionElement.textContent, '*');
+            }
+        });
+    </script>
+</body>
+</html>

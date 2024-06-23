@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bento Grid Layout</title>
+    <link rel="stylesheet" href="grid.css">
+    <style>
+        @keyframes gradientBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            background-size: 400% 400%;
+            animation: gradientBackground 15s ease infinite;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 20px;
+            width: 90vw;
+            height: 90vh;
+        }
+
+        .grid-item:hover:not(.item-1, .item-3, .item-6, .item-7, .item-8, .item-9, .item-12) {
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 2px black,
+                0 0 4px black,
+                0 0 6px black,
+                0 0 8px black;
+            z-index: 2;
+        }
+
+        .item-1 { grid-area: 1 / 1 / 2 / 3; } /* Combines 1 and 2 into a single grid */
+        .item-3 { grid-area: 1 / 3 / 2 / 4; }
+        .item-4 { grid-area: 1 / 4 / 2 / 5; }
+        .item-5 {
+            grid-area: 2 / 2 / 4 / 4;
+            font-size: 2.5em;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .item-6 { grid-area: 2 / 1 / 3 / 2; }
+        .item-7 { grid-area: 2 / 4 / 3 / 5; }
+        .item-8 { grid-area: 3 / 1 / 4 / 2; }
+        .item-9 { grid-area: 3 / 4 / 5 / 5; }
+        .item-10 { grid-area: 4 / 1 / 5 / 2; }
+        .item-11 { grid-area: 4 / 2 / 5 / 3; }
+        .item-12 { grid-area: 4 / 3 / 5 / 4; }
+        .item-13 { grid-area: 4 / 4 / 5 / 5; }
+
+    </style>
+</head>
+<body>
+    <div id="overlay" onclick="hidePopup()"></div>
+    <iframe id="popupFrame" class="popup-frame"></iframe>
+
+    <div class="grid-container">
+        <div class="grid-item item-1">
+            <h style="color: black; padding-top: 20px;"> Welcome to LogTrack</h>
+            <img src="log-tracker.svg" width="100vw">
+        </div>
+        <div class="grid-item item-3">3</div>
+        <div class="grid-item item-4" onclick="showPopup('announcementsPage.html')">
+            <img src="flag-diamond.svg" width="100vw">
+            <h style="color: black"> Announcements</h>
+        </div>
+        <div class="grid-item item-5" onclick="openNewPage('graphPage.html')">
+            <img src="series-line.svg" width="40%">
+            <h style="color: black"> Graph</h>
+        </div>
+        <div class="grid-item item-6">6</div>
+        <div class="grid-item item-7">
+            <img src="history.svg" width="90vw" height="80vh">
+            <h style="color: black; padding-top: 20px;"> History</h>
+        </div>
+        <div class="grid-item item-8">
+            <img src="log-logic.svg" width="90vw" height="80vh">
+            <h style="color: black; padding-top: 20px;"> Log Logic</h>
+        </div>
+        <div class="grid-item item-9">
+            <img src="database.svg" width="100vw">
+            <h style="color: black; padding-top: 20px;"> Offset Database</h>
+        </div>
+        <div class="grid-item item-10" onclick="showPopup('techStackPage.html')">
+            <img src="tech-stack.svg" width="100vw">
+            <h style="color: black; padding-top: 20px;"> Techstack</h>
+        </div>
+        <div class="grid-item item-11" onclick="showPopup('messagePage.html')">
+            <img src="message-icon.svg" width="100vw">
+            <h style="color: black; padding-top: 20px;"> Your Suggestions</h>
+        </div>
+        <div class="grid-item item-12">
+            <img src="upload-log.svg" width="30%">
+            <h style="color: black"> Upload Log</h>
+        </div>
+    </div>
+
+    <script>
+        function showPopup(pageUrl) {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            popupFrame.src = pageUrl;
+            overlay.style.display = 'block';
+            popupFrame.style.display = 'block';
+
+            setTimeout(() => {
+                overlay.style.opacity = 1;
+                popupFrame.style.opacity = 1;
+            }, 0);
+        }
+
+        function hidePopup() {
+            const popupFrame = document.getElementById('popupFrame');
+            const overlay = document.getElementById('overlay');
+
+            overlay.style.opacity = 0;
+            popupFrame.style.opacity = 0;
+
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                popupFrame.style.display = 'none';
+            }, 500);
+        }
+
+        function openNewPage(pageUrl) {
+            window.location.href = pageUrl;
+        }
+    </script>
+</body>
+</html>

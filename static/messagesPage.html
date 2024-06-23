@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrollable Grid Layout with Search</title>
+    <link rel="stylesheet" href="grid.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: whitesmoke;
+            font-family: Arial, sans-serif;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr; /* One column layout */
+            gap: 20px;
+            padding: 30px;
+            max-width: 80vw; /* Adjust as needed */
+            overflow-y: auto; /* Enable vertical scrolling */
+            max-height: 80vh; /* Limit height for scroll */
+        }
+
+        .grid-item {
+            width: 80vw; /* Each row covers up to 80% of the width */
+            height: 10vh;
+            cursor: pointer;
+        }
+
+        .selected {
+            background-color: lightgreen; /* Green background color */
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-container">
+        <div class="grid-item item-1">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+        </div>
+    </div>
+
+    <script>
+        // Array of names
+        names = [
+            'John Doe',
+            'Jane Smith',
+            'Michael Brown',
+            'Emily Davis',
+            'David Wilson',
+            'Sarah Johnson',
+            'Matthew Clark',
+            'Olivia Martinez',
+            'Daniel Garcia'
+        ];
+        var messageObject = {
+            from: 'messagesPage',
+            action: '',  //add or remove
+            message: ''
+        }
+
+        let gridItems = []; // Array to store grid items for search functionality
+
+        // Function to create grid items
+        function resetGrids()
+        {
+            gridItems.length=0;
+            messageObject.action = '';
+            messageObject.message = '';
+            const gridContainer = document.querySelector('.grid-container');
+            gridContainer.innerHTML = '';
+            // Add search input item
+            const searchItem = document.createElement('div');
+            searchItem.classList.add('grid-item', 'item-1');
+            searchItem.innerHTML = `
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by name...">
+            `;
+            gridContainer.appendChild(searchItem);
+        }
+        function createGridsFromArray()
+        {
+            const gridContainer = document.querySelector('.grid-container');
+            names.forEach((name, index) => {
+                const gridItem = document.createElement('div');
+                gridItem.classList.add('grid-item');
+                gridItem.textContent = name;
+                gridContainer.appendChild(gridItem);
+
+                // Add click event listener
+                gridItem.addEventListener('click', function() {
+                    if (gridItem.classList.contains('selected')) {
+                        // If the clicked item is already selected, deselect it
+                        messageObject.action='remove';
+                        messageObject.message = gridItem.textContent;
+                        gridItem.classList.remove('selected');
+                        selectedGridItem = null;
+                    } else {
+                        // Select the clicked item
+                        gridItem.classList.add('selected');
+                        selectedGridItem = gridItem;
+                        messageObject.action='add';
+                        messageObject.message = gridItem.textContent;
+                    }
+                    window.parent.postMessage(JSON.stringify(messageObject), '*');
+                });
+            });
+            gridItems = Array.from(document.querySelectorAll('.grid-item:not(.item-1)'));
+        }
+        function createSearchGrid()
+        {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.trim().toLowerCase();
+
+                gridItems.forEach(item => {
+                    const itemName = item.textContent.toLowerCase();
+
+                    if (itemName.includes(searchText)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+        function createGridItems() 
+        {
+            resetGrids();
+            createGridsFromArray();
+            createSearchGrid();
+        }
+
+        // Initial creation of grid items
+        createGridItems();
+
+        window.addEventListener('message', function(event) {
+
+            receivedObjects = JSON.parse(event.data);
+            names.length = 0;
+            if(receivedObjects.type !== '')
+            {
+                for(let i=0;i<10;i++)
+                {
+                    names.push(receivedObjects.type + Math.floor(Math.random() * 100) + 1);
+                }
+            }
+            createGridItems();
+        });
+    </script>
+</body>
+</html>
